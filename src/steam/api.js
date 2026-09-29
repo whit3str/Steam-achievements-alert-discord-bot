@@ -1,7 +1,6 @@
 import fetch from 'node-fetch';
 import { loadImage } from "canvas";
-import config from '../../config.json' with { type: 'json' };
-const { API_Steam_key } = config;
+const API_Steam_key = process.env.STEAM_API_KEY;
 
 async function isPublicProfile(steamUserId) {
   // Check if a Steam profile is public by requesting achievements

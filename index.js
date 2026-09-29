@@ -4,7 +4,9 @@ import { readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Client, Collection, Events, GatewayIntentBits } from 'discord.js';
-import config from './config.json' with { type: 'json' };
+
+// Load variables from a local .env file if present; real env vars (e.g. from Docker) are never overwritten
+try { process.loadEnvFile(); } catch { /* no .env file found, rely on process.env */ }
 
 import { getInfosDB, getGamesDB } from './src/connectAndQueryJSON.js';
 import { loadAvatars } from './src/steam/api.js';
@@ -24,7 +26,7 @@ console.warn = withDateLog(console.warn);
 console.error = withDateLog(console.error);
 
 
-const { discord_token } = config;
+const discord_token = process.env.DISCORD_TOKEN;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 

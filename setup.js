@@ -1,7 +1,10 @@
 import { REST, Routes } from 'discord.js';
-import { accessSync, constants, writeFileSync, readdirSync, existsSync, readFileSync } from 'node:fs';
+import { accessSync, constants, writeFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'url';
+
+// Load variables from a local .env file if present; real env vars (e.g. from Docker) are never overwritten
+try { process.loadEnvFile(); } catch { /* no .env file found, rely on process.env */ }
 
 function checkIfFileExists(filePath) {
 	try {
@@ -28,14 +31,6 @@ const defaultData = {
 	guilds: {}
 }
 
-const defaultConfig = {
-	API_Steam_key: "YOUR_STEAM_API_KEY",
-	clientId: "YOUR_CLIENT_ID",
-	guildId: ["YOUR_GUILD_ID_1", "YOUR_GUILD_ID_2"],
-	discord_token: "YOUR_DISCORD_TOKEN",
-	lang: "english"
-}
-
 let filePath = 'src/data.json';
 if (!checkIfFileExists(filePath)) {
 	createJsonFile(filePath, defaultData);
@@ -44,30 +39,22 @@ if (!checkIfFileExists(filePath)) {
 	console.log(`${filePath} already existing`);
 }
 
-filePath = 'config.json';
-if (!checkIfFileExists(filePath)) {
-	createJsonFile(filePath, defaultConfig);
-	console.log(`${filePath} file created, please fill it`);
+const envExamplePath = '.env.example';
+if (!checkIfFileExists('.env') && !process.env.DISCORD_TOKEN && checkIfFileExists(envExamplePath)) {
+	console.log('.env file not found. Copy .env.example to .env and fill it before running setup again.');
 	process.exit(1);
-} else {
-	console.log(`${filePath} already existing`);
 }
 
-let clientId, guildId, discord_token;
-try {
-	const configContent = readFileSync('./config.json', 'utf8');
-	const config = JSON.parse(configContent);
-	({ clientId, guildId, discord_token } = config);
-} catch (error) {
-	exitWithError('Failed to load config.json. Please ensure it is correctly formatted.', error);
+const clientId = process.env.DISCORD_CLIENT_ID;
+const discord_token = process.env.DISCORD_TOKEN;
+const guildId = (process.env.DISCORD_GUILD_IDS || '').split(',').map(id => id.trim()).filter(Boolean);
+
+if (!clientId || clientId === "YOUR_CLIENT_ID" || !discord_token || discord_token === "YOUR_DISCORD_TOKEN") {
+	exitWithError('Please set DISCORD_CLIENT_ID and DISCORD_TOKEN in ./.env');
 }
 
-if (clientId === "" || clientId === "YOUR_CLIENT_ID" || discord_token === "" || discord_token === "YOUR_DISCORD_TOKEN") {
-	exitWithError('Please fill ./config.json');
-}
-
-if (!Array.isArray(guildId) || guildId.length === 0 || guildId.some(id => id === "" || id === "YOUR_GUILD_ID_1" || id === "YOUR_GUILD_ID_2")) {
-	exitWithError('Please provide at least one guildId in ./config.json as an array.');
+if (guildId.length === 0 || guildId.some(id => id === "YOUR_GUILD_ID_1" || id === "YOUR_GUILD_ID_2")) {
+	exitWithError('Please provide at least one guild ID in DISCORD_GUILD_IDS (comma-separated) in ./.env');
 }
 
 const commands = [];

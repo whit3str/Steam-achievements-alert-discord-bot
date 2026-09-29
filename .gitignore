@@ -1,5 +1,8 @@
 node_modules
+config.json
 /config.json
+.env
 src/data.json
+data/
 src/connectAndQueryMSSQL.js
 *output.png

@@ -1,0 +1,13 @@
+node_modules
+npm-debug.log
+.git
+.github
+.gitignore
+.vscode
+tests
+README.md
+*.md
+config.json
+.env
+src/data.json
+*output.png

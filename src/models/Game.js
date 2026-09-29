@@ -1,5 +1,4 @@
 import { getPlayerAchievements, getGlobalAchievementPercentagesForApp, getSchemaForGame } from '../steam/api.js';
-import config from '../../config.json' with { type: 'json' };
 
 class Game {
     constructor(id, img = null) {
@@ -22,7 +21,7 @@ class Game {
         try {
             const lastScan = appData.tLookback;
             const user = appData.users.find(u => u.steam_id === userId);
-            const playerAchievements = await getPlayerAchievements(this.id, user.steam_id, config.lang);
+            const playerAchievements = await getPlayerAchievements(this.id, user.steam_id, process.env.STEAM_LANG || 'english');
             if (!playerAchievements || !playerAchievements.playerstats || !playerAchievements.playerstats.achievements) {
                 throw new Error(`No achievements found for game ${this.id} for user ${user.steam_id}`);
             }

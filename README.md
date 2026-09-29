@@ -84,38 +84,29 @@ To use this bot, you will need the following:
     npm install
     ```
 
-3.  **Prepare configuration files:**
-    The `setup.js` script will create `config.json` and `src/data.json` if they don't already exist.
-    ```bash
-    node setup.js
+3.  **Prepare your `.env` file:**
+    Copy `.env.example` to `.env` and fill in the following variables:
+    ```env
+    STEAM_API_KEY=YOUR_STEAM_API_KEY
+    DISCORD_CLIENT_ID=YOUR_DISCORD_CLIENT_ID
+    DISCORD_GUILD_IDS=YOUR_DISCORD_SERVER_ID_1,YOUR_DISCORD_SERVER_ID_2
+    DISCORD_TOKEN=YOUR_DISCORD_BOT_TOKEN
+    STEAM_LANG=english
     ```
-    *   If `config.json` is created, it will contain default values. You will need to modify it.
+    *   `STEAM_API_KEY`: Your Steam API key.
+    *   `DISCORD_CLIENT_ID`: Your Discord bot application ID.
+    *   `DISCORD_GUILD_IDS`: A comma-separated list of the Discord server IDs where the bot will be used. You can find a server's ID by enabling developer mode in Discord (User Settings > Advanced) then right-clicking on the server.
+    *   `DISCORD_TOKEN`: Your Discord bot token.
+    *   `STEAM_LANG`: The language for Steam information (e.g., "french", "english").
 
-4.  **Fill `config.json`:**
-    Open the `config.json` file (located at the root of the project) and fill in the following information:
-    ```json
-    {
-      "API_Steam_key": "YOUR_STEAM_API_KEY",
-      "clientId": "YOUR_DISCORD_CLIENT_ID",
-      "guildId": ["YOUR_DISCORD_SERVER_ID_1", "YOUR_DISCORD_SERVER_ID_2"],
-      "discord_token": "YOUR_DISCORD_BOT_TOKEN",
-      "lang": "english"
-    }
-    ```
-    *   `API_Steam_key`: Your Steam API key.
-    *   `clientId`: Your Discord bot application ID.
-    *   `guildId`: An array containing the IDs of the Discord servers where the bot will be used. You can find a server's ID by enabling developer mode in Discord (User Settings > Advanced) then right-clicking on the server.
-    *   `discord_token`: Your Discord bot token.
-    *   `lang`: The language for Steam information (e.g., "french", "english").
-
-5.  **Deploy Slash Commands:**
-    The `setup.js` script also deploys the bot's slash commands to Discord. Make sure `config.json` is correctly filled before running this step.
+4.  **Create the data file and deploy Slash Commands:**
+    The `setup.js` script creates `src/data.json` if it doesn't already exist, and deploys the bot's slash commands to Discord. Make sure `.env` is correctly filled before running this step.
     ```bash
     node setup.js
     ```
     You should see confirmation messages in the console indicating that the commands have been reloaded for your servers.
 
-6.  **Start the bot:**
+5.  **Start the bot:**
     ```bash
     node index.js
     ```
@@ -128,3 +119,32 @@ After starting the bot:
 1.  **Add players and games:** Use the `/add_player` and `/add_game` commands to start tracking achievements and to use game-specific commands.
 2.  **Set notification channel:** Use the `/set_new_achievements_display` command in the channel where you want to receive new achievement alerts.
 3. **Set automatic report :** Use the `/set-achievements-report-schedule` command if you want to set periodic report.
+
+## Running with Docker
+
+A prebuilt image is published to GHCR at `ghcr.io/whit3str/steam-achievements-alert-discord-bot` on every push to `main` (tag `latest`) and on version tags (e.g. `v1.2.3`).
+
+1.  **Prepare your `.env` and data files locally** (they are mounted/injected into the container, never baked into the image):
+    ```bash
+    cp .env.example .env
+    mkdir -p data
+    echo '{"users":{},"games":{},"guilds":{}}' > data/data.json
+    ```
+    Fill in `.env` with your real values (see step 3 above).
+
+2.  **Deploy the slash commands once** (needs a filled `.env`):
+    ```bash
+    docker compose run --rm bot node setup.js
+    ```
+
+3.  **Start the bot:**
+    ```bash
+    docker compose up -d
+    ```
+
+4.  **View logs:**
+    ```bash
+    docker compose logs -f bot
+    ```
+
+By default `docker-compose.yml` pulls the `latest` tag from GHCR. To pin a specific version, set `TAG=v1.2.3` before running compose (e.g. `TAG=v1.2.3 docker compose up -d`). To build the image locally instead of pulling it, run `docker build -t ghcr.io/whit3str/steam-achievements-alert-discord-bot:latest .`.

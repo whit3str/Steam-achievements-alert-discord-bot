@@ -1,0 +1,9 @@
+services:
+  bot:
+    image: ghcr.io/whit3str/steam-achievements-alert-discord-bot:${TAG:-latest}
+    container_name: steam-achievements-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./data/data.json:/app/src/data.json

@@ -1,5 +1,4 @@
 import { getOwnedGames, getRecentlyPlayedGames, getPlayerAchievements, getSchemaForGame } from '../steam/api.js';
-import config from '../../config.json' with { type: 'json' };
 import { isGameIdValid } from '../steam/api.js';
 import { getOrAddGame } from '../steam/appData.js';
 
