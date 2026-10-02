@@ -27,7 +27,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=builder /app/node_modules ./node_modules
 COPY . .
 
-RUN chown -R botuser:nodejs /app
+RUN chown -R botuser:nodejs /app && chmod +x entrypoint.sh
 USER botuser
 
+ENTRYPOINT ["./entrypoint.sh"]
 CMD ["node", "index.js"]

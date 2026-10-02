@@ -132,10 +132,13 @@ A prebuilt image is published to GHCR at `ghcr.io/whit3str/steam-achievements-al
     ```
     Fill in `.env` with your real values (see step 3 above).
 
-2.  **Deploy the slash commands once** (needs a filled `.env`):
+    > **Important:** `data/data.json` must exist as a **file** before the first `docker compose up`. If the host path doesn't exist yet, Docker creates it as a **directory** when setting up the bind mount, which breaks the bot (`EISDIR` error in the logs). If this happens, remove the wrongly-created directory, recreate `data.json` as an actual file with the command above, then run `docker compose down && docker compose up -d` (a plain restart won't fix it, the mount type is fixed at container creation).
+
+2.  **Deploy the slash commands.** Either set `DEPLOY_COMMANDS=true` in `.env` before starting the bot (it deploys commands then starts the bot automatically, in one `docker compose up`), or deploy them manually once:
     ```bash
     docker compose run --rm bot node setup.js
     ```
+    If you use `DEPLOY_COMMANDS=true`, remember to set it back to `false` afterwards to avoid redeploying on every restart (Discord rate-limits this endpoint).
 
 3.  **Start the bot:**
     ```bash
